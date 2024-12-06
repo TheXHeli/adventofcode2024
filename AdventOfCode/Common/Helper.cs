@@ -2,12 +2,12 @@ namespace AdventOfCode.Common;
 
 public static class Helper
 {
-    public static List<List<int>> ConvertInputToArrayArray(string[] inputStr)
+    public static List<List<int>> ConvertInputToArrayArray(string[] inputStr, string splitStr)
     {
         var retVal = new List<List<int>>();
         foreach (var tmpEntry in inputStr)
         {
-            var elems = tmpEntry.Split(" ").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => int.Parse(x))
+            var elems = tmpEntry.Split(splitStr).Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => int.Parse(x))
                 .ToList();
             retVal.Add(elems);
         }
@@ -15,9 +15,9 @@ public static class Helper
         return retVal;
     }
 
-    public static List<List<int>> GetArrayArrayFromFile(string fileName)
+    public static List<List<int>> GetArrayArrayFromFile(string fileName, string splitStr)
     {
         var inputStr = File.ReadAllLines(fileName);
-        return ConvertInputToArrayArray(inputStr);
+        return ConvertInputToArrayArray(inputStr, splitStr);
     }
 }

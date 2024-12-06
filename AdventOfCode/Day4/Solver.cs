@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using AdventOfCode.Common;
 
@@ -8,6 +9,7 @@ public static class Solver
     public static void SolveIt_1stPart()
     {
         var linesToParse = File.ReadAllLines("inputs/day4_1.txt");
+        var stopWatch = Stopwatch.StartNew();
         var cnt = GetXMasCnt(linesToParse, "XMAS");
         cnt += GetXMasCnt(linesToParse, "SAMX");
         var newLinesToParse = Transpose(linesToParse);
@@ -16,7 +18,9 @@ public static class Solver
         newLinesToParse = ConstructDiagonalLines(linesToParse);
         cnt += GetXMasCnt(newLinesToParse, "XMAS");
         cnt += GetXMasCnt(newLinesToParse, "SAMX");
-
+        
+        stopWatch.Stop();
+        Console.WriteLine($"{stopWatch.Elapsed}");
         Console.WriteLine(cnt);
     }
 
@@ -94,6 +98,7 @@ public static class Solver
     {
         var xmasFoundCnt = 0;
         var linesToParse = File.ReadAllLines("inputs/day4_1.txt");
+        var stopWatch = Stopwatch.StartNew();
         for (int x = 1; x < linesToParse[0].Length - 1; x++)
         {
             for (int y = 1; y < linesToParse.Length - 1; y++)
@@ -110,9 +115,20 @@ public static class Solver
                             xmasFoundCnt++;
                         }
                     }
+                    // if (((linesToParse[y - 1][x - 1] == 'M' && linesToParse[y + 1][x + 1] == 'S')) ||
+                    //     ((linesToParse[y - 1][x - 1] == 'S' && linesToParse[y + 1][x + 1] == 'M')))
+                    // {
+                    //     if (((linesToParse[y + 1][x - 1] == 'M' && linesToParse[y - 1][x + 1] == 'S')) ||
+                    //         ((linesToParse[y + 1][x - 1] == 'S' && linesToParse[y - 1][x + 1] == 'M')))
+                    //     {
+                    //         xmasFoundCnt++;
+                    //     }
+                    // }
                 }
             }
         }
+        stopWatch.Stop();
+        Console.WriteLine($"{stopWatch.Elapsed}");
         Console.WriteLine(xmasFoundCnt);
     }
 }

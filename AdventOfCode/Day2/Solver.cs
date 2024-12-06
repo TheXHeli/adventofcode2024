@@ -14,7 +14,7 @@ public static class Solver
 
     public static void SolveIt_1stPart()
     {
-        var rawList = Helper.GetArrayArrayFromFile("inputs/day2_1.txt");
+        var rawList = Helper.GetArrayArrayFromFile("inputs/day2_1.txt", " ");
         var safeCount = 0;
         foreach (var rowToAnalyze in rawList)
         {
@@ -44,7 +44,7 @@ public static class Solver
 
     public static void SolveIt_2ndPart()
     {
-        var rawList = Helper.GetArrayArrayFromFile("inputs/day2_1.txt");
+        var rawList = Helper.GetArrayArrayFromFile("inputs/day2_1.txt", " ");
         var safeCount = 0;
         foreach (var rowToAnalyze in rawList)
         {

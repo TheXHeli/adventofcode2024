@@ -6,7 +6,7 @@ public static class Solver
 {
     public static void SolveIt_1stPart()
     {
-        var rawList = Helper.GetArrayArrayFromFile("inputs/day1_1.txt");
+        var rawList = Helper.GetArrayArrayFromFile("inputs/day1_1.txt", " ");
         var list1 = rawList.Select(a => a[0]).ToList();
         var list2 = rawList.Select(a => a[1]).ToList();
         list1.Sort();
@@ -22,7 +22,7 @@ public static class Solver
 
     public static void SolveIt_2ndPart()
     {
-        var rawList = Helper.GetArrayArrayFromFile("inputs/day1_1.txt");
+        var rawList = Helper.GetArrayArrayFromFile("inputs/day1_1.txt", " ");
         var list1 = rawList.Select(a => a[0]).ToList();
         var list2 = rawList.Select(a => a[1]).ToList();
         list1.Sort();
