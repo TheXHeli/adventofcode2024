@@ -77,25 +77,32 @@ public static class Solver
         var startXSaved = curX;
         var startYSaved = curY;
 
-        //var usedPfad = GetBeschrittenenPfad(inputMap, curX, curY);
-
+        var usedPfad = GetBeschrittenenPfad(inputMap, curX, curY);
+        var realyUsedPfad = new List<int>();
+        var extraCnt = 0;
         var result = 0;
         var listY = Enumerable.Range(0, inputMap.GetLength(0));
         Parallel.ForEach(listY, y =>
         {
             for (int x = 0; x < borderX; x++)
             {
-                // if (usedPfad.Contains((y << 8) | x))
-                // {
+                if (usedPfad.Contains((y << 8) | x))
+                {
                     curY = startYSaved;
                     curX = startXSaved;
                     byte[,] saveMap = new byte[borderY, borderX];
                     Array.Copy(inputMap, saveMap, borderY * borderX);
                     var hasExited = WithExit(saveMap, curY, curX, borderX, borderY, y, x);
-                    if (!hasExited) result++;
-                //}
+                    if (!hasExited)
+                    {
+                        Interlocked.Increment(ref result);
+                    }
+                }
             }
         });
+        //var resultMap = realyUsedPfad.Except(usedPfad).ToList();
+
+        Console.WriteLine("Bla:" + extraCnt);
 
         stopWatch.Stop();
         Console.WriteLine($"{stopWatch.Elapsed.TotalMicroseconds} us");
@@ -167,7 +174,7 @@ public static class Solver
     }
 
     private static bool WithExit(byte[,] inputMap, int curY, int curX, int borderX, int borderY,
-        int obstacleX, int obstacleY)
+        int obstacleY, int obstacleX)
     {
         int[,] wowarichschonMap = new int[inputMap.GetLength(0), inputMap.GetLength(1)];
         var breadCrump = new List<int>();
