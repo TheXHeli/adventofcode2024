@@ -78,31 +78,42 @@ public static class Solver
         var startYSaved = curY;
 
         var usedPfad = GetBeschrittenenPfad(inputMap, curX, curY);
-        var realyUsedPfad = new List<int>();
         var extraCnt = 0;
         var result = 0;
         var listY = Enumerable.Range(0, inputMap.GetLength(0));
-        Parallel.ForEach(listY, y =>
+        // Parallel.ForEach(listY, y =>
+        // {
+        //     for (int x = 0; x < borderX; x++)
+        //     {
+        //         if (usedPfad.Contains((y << 8) | x))
+        //         {
+        //             curY = startYSaved;
+        //             curX = startXSaved;
+        //             byte[,] saveMap = new byte[borderY, borderX];
+        //             Array.Copy(inputMap, saveMap, borderY * borderX);
+        //             var hasExited = WithExit(saveMap, curY, curX, borderX, borderY, y, x);
+        //             if (!hasExited)
+        //             {
+        //                 Interlocked.Increment(ref result);
+        //             }
+        //         }
+        //     }
+        // });
+        //var resultMap = realyUsedPfad.Except(usedPfad).ToList();
+        Parallel.ForEach(usedPfad, new ParallelOptions { MaxDegreeOfParallelism = 10 }, pfadEintrag =>
         {
-            for (int x = 0; x < borderX; x++)
+            var x = pfadEintrag & 255;
+            var y = pfadEintrag >> 8;
+            curY = startYSaved;
+            curX = startXSaved;
+            byte[,] saveMap = new byte[borderY, borderX];
+            Array.Copy(inputMap, saveMap, borderY * borderX);
+            var hasExited = WithExit(saveMap, curY, curX, borderX, borderY, y, x);
+            if (!hasExited)
             {
-                if (usedPfad.Contains((y << 8) | x))
-                {
-                    curY = startYSaved;
-                    curX = startXSaved;
-                    byte[,] saveMap = new byte[borderY, borderX];
-                    Array.Copy(inputMap, saveMap, borderY * borderX);
-                    var hasExited = WithExit(saveMap, curY, curX, borderX, borderY, y, x);
-                    if (!hasExited)
-                    {
-                        Interlocked.Increment(ref result);
-                    }
-                }
+                Interlocked.Increment(ref result);
             }
         });
-        //var resultMap = realyUsedPfad.Except(usedPfad).ToList();
-
-        Console.WriteLine("Bla:" + extraCnt);
 
         stopWatch.Stop();
         Console.WriteLine($"{stopWatch.Elapsed.TotalMicroseconds} us");
