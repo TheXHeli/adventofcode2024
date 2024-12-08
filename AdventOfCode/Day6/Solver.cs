@@ -81,39 +81,39 @@ public static class Solver
         var extraCnt = 0;
         var result = 0;
         var listY = Enumerable.Range(0, inputMap.GetLength(0));
-        // Parallel.ForEach(listY, y =>
-        // {
-        //     for (int x = 0; x < borderX; x++)
-        //     {
-        //         if (usedPfad.Contains((y << 8) | x))
-        //         {
-        //             curY = startYSaved;
-        //             curX = startXSaved;
-        //             byte[,] saveMap = new byte[borderY, borderX];
-        //             Array.Copy(inputMap, saveMap, borderY * borderX);
-        //             var hasExited = WithExit(saveMap, curY, curX, borderX, borderY, y, x);
-        //             if (!hasExited)
-        //             {
-        //                 Interlocked.Increment(ref result);
-        //             }
-        //         }
-        //     }
-        // });
-        //var resultMap = realyUsedPfad.Except(usedPfad).ToList();
-        Parallel.ForEach(usedPfad, new ParallelOptions { MaxDegreeOfParallelism = 10 }, pfadEintrag =>
+        Parallel.ForEach(listY, new ParallelOptions { MaxDegreeOfParallelism = 8 }, y =>
         {
-            var x = pfadEintrag & 255;
-            var y = pfadEintrag >> 8;
-            curY = startYSaved;
-            curX = startXSaved;
-            byte[,] saveMap = new byte[borderY, borderX];
-            Array.Copy(inputMap, saveMap, borderY * borderX);
-            var hasExited = WithExit(saveMap, curY, curX, borderX, borderY, y, x);
-            if (!hasExited)
+            for (int x = 0; x < borderX; x++)
             {
-                Interlocked.Increment(ref result);
+                if (usedPfad.Contains((y << 8) | x))
+                {
+                    curY = startYSaved;
+                    curX = startXSaved;
+                    byte[,] saveMap = new byte[borderY, borderX];
+                    Array.Copy(inputMap, saveMap, borderY * borderX);
+                    var hasExited = WithExit(saveMap, curY, curX, borderX, borderY, y, x);
+                    if (!hasExited)
+                    {
+                        Interlocked.Increment(ref result);
+                    }
+                }
             }
         });
+        //var resultMap = realyUsedPfad.Except(usedPfad).ToList();
+        // Parallel.ForEach(usedPfad, new ParallelOptions { MaxDegreeOfParallelism = 10 }, pfadEintrag =>
+        // {
+        //     var x = pfadEintrag & 255;
+        //     var y = pfadEintrag >> 8;
+        //     curY = startYSaved;
+        //     curX = startXSaved;
+        //     byte[,] saveMap = new byte[borderY, borderX];
+        //     Array.Copy(inputMap, saveMap, borderY * borderX);
+        //     var hasExited = WithExit(saveMap, curY, curX, borderX, borderY, y, x);
+        //     if (!hasExited)
+        //     {
+        //         Interlocked.Increment(ref result);
+        //     }
+        // });
 
         stopWatch.Stop();
         Console.WriteLine($"{stopWatch.Elapsed.TotalMicroseconds} us");
@@ -192,6 +192,7 @@ public static class Solver
         byte dir = 0; //0 = Oben, 1 = Rechts, 2 = Unten, 3 = Links
         var dirX = 0; // -1 = nach Links in X Richtung, 1 = nach Rechts in X Richtung
         var dirY = -1; // -1 = nach Oben in Y-Richtung, 1 = nach Unten in Y Richtung
+        
         //if (inputMap[obstacleY, obstacleX] == 1) return true; //wenn eh schon hinderniss
         if (curX == obstacleX && curY == obstacleY) return true; //wenn auf startpos auch direkt aussteigen
         //var valueBefore = inputMap[obstacleY, obstacleX];
