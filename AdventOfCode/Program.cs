@@ -1,6 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using AdventOfCode.Day10;
+using AdventOfCode.Day11;
 
 //Solver.SolveIt_1stPart();
-Solver.SolveIt_2ndPart();
+Solver.SolveIt_2ndPart(75);

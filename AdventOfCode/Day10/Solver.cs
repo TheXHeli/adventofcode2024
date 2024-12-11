@@ -30,6 +30,7 @@ public static class Solver
                 }
             }
         }
+
         stopwatch.Stop();
         Console.WriteLine(stopwatch.Elapsed);
         Console.WriteLine(gesCnt);
@@ -37,7 +38,7 @@ public static class Solver
 
     private static List<int> GetReachedNiner(int x, int y, char valueBefore)
     {
-        Console.WriteLine($"x: {x}, y: {y}");
+        //Console.WriteLine($"x: {x}, y: {y}");
         if (x < 0 || x >= _borderX || y < 0 || y >= _borderY) return [];
         if (_inputMap[y][x] - valueBefore != 1) return [];
         if (_inputMap[y][x] == '9') return [(y << 6) | x];
@@ -57,34 +58,40 @@ public static class Solver
         _borderX = _inputMap[0].Length;
         var gesCnt = 0;
         var stopwatch = Stopwatch.StartNew();
+        var alleSpalten = Enumerable.Range(0, _borderX - 1);
         for (int x = 0; x < _inputMap[0].Length; x++)
         {
+            // Parallel.ForEach(alleSpalten, new ParallelOptions { MaxDegreeOfParallelism = 8 }, x =>
+            // {
             for (int y = 0; y < _inputMap.Length; y++)
             {
                 if (_inputMap[y][x] == '0')
                 {
                     var ninerReachedList = GetReachedNiner_NonDistinct(x, y, (char)47);
-                    gesCnt += ninerReachedList.Count;
-                    var stopStr = "";
+                    //gesCnt += ninerReachedList;
+                    Interlocked.Add(ref gesCnt, ninerReachedList);
+                    //var stopStr = "";
                 }
             }
+            //});
         }
+
         stopwatch.Stop();
         Console.WriteLine(stopwatch.Elapsed);
         Console.WriteLine(gesCnt);
     }
-    
-    private static List<int> GetReachedNiner_NonDistinct(int x, int y, char valueBefore)
+
+    private static int GetReachedNiner_NonDistinct(int x, int y, char valueBefore)
     {
-        Console.WriteLine($"x: {x}, y: {y}");
-        if (x < 0 || x >= _borderX || y < 0 || y >= _borderY) return [];
-        if (_inputMap[y][x] - valueBefore != 1) return [];
-        if (_inputMap[y][x] == '9') return [(y << 6) | x];
-        var resultsFromLeftStep = GetReachedNiner_NonDistinct(x - 1, y, _inputMap[y][x]);
-        var resultsFromRigthStep = GetReachedNiner_NonDistinct(x + 1, y, _inputMap[y][x]);
-        var resultsFromUpStep = GetReachedNiner_NonDistinct(x, y - 1, _inputMap[y][x]);
-        var resultsFromDownStep = GetReachedNiner_NonDistinct(x, y + 1, _inputMap[y][x]);
-        return resultsFromLeftStep.Concat(resultsFromRigthStep).Concat(resultsFromUpStep).Concat(resultsFromDownStep)
-            .ToList();
+        //Console.WriteLine($"x: {x}, y: {y}");
+        if (x < 0 || x >= _borderX || y < 0 || y >= _borderY) return 0;
+        var curChar = _inputMap[y][x];
+        if (curChar - valueBefore != 1) return 0;
+        if (curChar == '9') return 1;
+        var resultsFromLeftStep = GetReachedNiner_NonDistinct(x - 1, y, curChar);
+        var resultsFromRigthStep = GetReachedNiner_NonDistinct(x + 1, y, curChar);
+        var resultsFromUpStep = GetReachedNiner_NonDistinct(x, y - 1, curChar);
+        var resultsFromDownStep = GetReachedNiner_NonDistinct(x, y + 1, curChar);
+        return resultsFromLeftStep + resultsFromRigthStep + resultsFromUpStep + resultsFromDownStep;
     }
 }
