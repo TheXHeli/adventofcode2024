@@ -92,14 +92,16 @@ public static class Solver
 
     public static void SolveIt_2ndPart(int maxBlinkCount)
     {
-        var stopwatch = Stopwatch.StartNew();
         var inputRaw = File.ReadAllText(InputFile).Split(" ").Select(double.Parse).ToArray();
+        var stopwatch = Stopwatch.StartNew();
         var blinkCnt = 0;
         var workingDict = new Dictionary<double, long>(); //key = Zahl auf Stein, Value = Cnt
         foreach (var tmpEntry in inputRaw)
         {
             workingDict.Add(tmpEntry, 1);
         }
+
+        var faktorTable = new List<int>{1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};
 
         do
         {
@@ -124,11 +126,10 @@ public static class Solver
                 }
 
                 var curStoneLength = Math.Floor(Math.Log10(curNumber)) + 1;
-                var halfStoneLength = curStoneLength / 2;
+                var halfStoneLength = (int)curStoneLength >> 1;
                 if (curStoneLength % 2 == 0)
                 {
-                    //1234
-                    var faktor = Math.Pow(10, halfStoneLength);
+                    var faktor = faktorTable[halfStoneLength];
                     var newLeft = Math.Floor(curNumber / faktor);
                     var newRight = curNumber - newLeft * faktor;
                     //---
