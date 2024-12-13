@@ -4,6 +4,10 @@ using AdventOfCode.Common;
 
 namespace AdventOfCode.Day12;
 
+//945953 (O)
+//946952 falsch
+//960000 falsch
+//Ergebnis aus Py-Lösung: 946084 Unterschied: 131
 public static class Solver
 {
     const string InputFile = "inputs/day12_bsp.txt";
@@ -81,7 +85,7 @@ public static class Solver
         _dawarichschonMap[x, y] = true;
         // var fencesToAdd = GetFencesToAdd(x, y, curPlantType);
         // _blockErgList[curBlockToCheck] += fencesToAdd;
-        // _blockCnt[curBlockToCheck]++;
+        _blockCnt[curBlockToCheck]++;
         WriteFencesToMap(x, y, curPlantType, fenceMap);
         //Console.WriteLine($"{curPlantType} -> {x} - {y}");
         //Neue Positionen finden
@@ -95,9 +99,6 @@ public static class Solver
 
     private static void WriteFencesToMap(int x, int y, char curPlantType, bool[,] fenceMap)
     {
-        //#BB //BB
-        // #B //AB
-        //AAAA
         if (curPlantType == 'B')
         {
             var stopStr = "";
@@ -107,29 +108,69 @@ public static class Solver
             }
         }
 
-        DrawSingleFence(x - 1, y - 1, curPlantType, fenceMap);
-        DrawSingleFence(x - 1, y, curPlantType, fenceMap);
-        DrawSingleFence(x - 1, y + 1, curPlantType, fenceMap);
-
-        DrawSingleFence(x, y - 1, curPlantType, fenceMap);
-        DrawSingleFence(x, y + 1, curPlantType, fenceMap);
-
-        DrawSingleFence(x + 1, y - 1, curPlantType, fenceMap);
-        DrawSingleFence(x + 1, y, curPlantType, fenceMap);
-        DrawSingleFence(x + 1, y + 1, curPlantType, fenceMap);
-    }
-
-    private static void DrawSingleFence(int x, int y, char curPlantType, bool[,] fenceMap)
-    {
-        if (x < 0 || x >= _borderX || y < 0 || y >= _borderY) //wenn irgendwie außerhalb
+        if (x == 0)
         {
-            fenceMap[x + 1, y + 1] = true;
+            DrawFenceLeft(x, y, fenceMap);
         }
         else
         {
-            if (_inputRaw[y][x] == curPlantType) return;
-            fenceMap[x + 1, y + 1] = true;
+            if (_inputRaw[y][x - 1] != curPlantType) DrawFenceLeft(x, y, fenceMap);
         }
+
+        if (x == _borderX - 1)
+        {
+            DrawFenceRight(x, y, fenceMap);
+        }
+        else
+        {
+            if (_inputRaw[y][x + 1] != curPlantType) DrawFenceRight(x, y, fenceMap);
+        }
+
+        if (y == 0)
+        {
+            DrawFenceTop(x, y, fenceMap);
+        }
+        else
+        {
+            if (_inputRaw[y - 1][x] != curPlantType) DrawFenceTop(x, y, fenceMap);
+        }
+
+        if (y == _borderY - 1)
+        {
+            DrawFenceDown(x, y, fenceMap);
+        }
+        else
+        {
+            if (_inputRaw[y + 1][x] != curPlantType) DrawFenceDown(x, y, fenceMap);
+        }
+    }
+
+    private static void DrawFenceLeft(int x, int y, bool[,] fenceMap)
+    {
+        fenceMap[x * 2, y * 2] = true;
+        fenceMap[x * 2, y * 2 + 1] = true;
+        fenceMap[x * 2, y * 2 + 2] = true;
+    }
+
+    private static void DrawFenceRight(int x, int y, bool[,] fenceMap)
+    {
+        fenceMap[x * 2 + 2, y * 2] = true;
+        fenceMap[x * 2 + 2, y * 2 + 1] = true;
+        fenceMap[x * 2 + 2, y * 2 + 2] = true;
+    }
+
+    private static void DrawFenceTop(int x, int y, bool[,] fenceMap)
+    {
+        fenceMap[x * 2, y * 2] = true;
+        fenceMap[x * 2 + 1, y * 2] = true;
+        fenceMap[x * 2 + 2, y * 2] = true;
+    }
+
+    private static void DrawFenceDown(int x, int y, bool[,] fenceMap)
+    {
+        fenceMap[x * 2, y * 2 + 2] = true;
+        fenceMap[x * 2 + 1, y * 2 + 2] = true;
+        fenceMap[x * 2 + 2, y * 2 + 2] = true;
     }
 
     private static void PlotFenceMap(bool[,] fenceMap, int fenceBorderX,
@@ -140,10 +181,17 @@ public static class Solver
             var outStr = "";
             for (int x = 0; x < fenceBorderX; x++)
             {
-                outStr += $"{(fenceMap[x, y] ? "#" : ".")}";
+                char altChar = '.';
+                if (y % 2 == 1 && x % 2 == 1)
+                {
+                    //altChar = _inputRaw[(y / 2) - 0][(x / 2) - 0];
+                    var stopStr = "";
+                }
+
+                outStr += $"{(fenceMap[x, y] ? "#" : altChar)}";
             }
 
-            Console.WriteLine(outStr);
+            Console.WriteLine(y.ToString().PadLeft(3, ' ') + outStr);
         }
     }
 
@@ -196,7 +244,7 @@ public static class Solver
         _borderX = _inputRaw[0].Length;
         _dawarichschonMap = new bool[_borderX, _borderY];
         bool[,] _fenceMap;
-
+        //945953
         var plantFieldPos = 0;
         for (int x = 0; x < _borderX; x++)
         {
@@ -206,31 +254,174 @@ public static class Solver
                 // {
                 if (!_dawarichschonMap[x, y])
                 {
-                    Console.WriteLine($"{_inputRaw[y][x]}------------");
+                    //Console.WriteLine($"{_inputRaw[y][x]}------------");
                     _blockErgList.Add(0);
                     _blockCnt.Add(0);
-                    _fenceMap = new bool[_borderX + 2, _borderY + 2];
+                    _fenceMap = new bool[_borderX * 2 + 1, _borderY * 2 + 1];
                     TryToFindFieldAndDrawFences(x, y, _inputRaw[y][x], plantFieldPos, _fenceMap);
-                    PlotFenceMap(_fenceMap, 6, 6);
+                    //TryFindBorderCrossings(_fenceMap);
+                    var foundSomeToEleminate = EleminateCrossFences(_fenceMap, x, y);
+                    if (foundSomeToEleminate)
+                    {
+                        //PlotFenceMap(_fenceMap, _borderX * 2 + 1, _borderY * 2 + 1);
+                    }
+
+
                     int fenceLineCnt = CalculateFenceLines(_fenceMap);
-                    Console.WriteLine($"{_inputRaw[y][x]} - {fenceLineCnt}");
+                    if (_blockCnt[plantFieldPos] == 131)
+                    {
+                        PlotFenceMap(_fenceMap, _borderX * 2 + 1, _borderY * 2 + 1);
+                    }
+                    _blockErgList[plantFieldPos] = fenceLineCnt;
+                    //Console.WriteLine($"{_inputRaw[y][x]} - Fences: {fenceLineCnt} - Plants: {_blockCnt[^1]}");
+                    if (x == 4 && y == 131)
+                    {
+                        var stopStr2 = "";
+                    }
+
                     plantFieldPos++;
                 }
                 //}
             }
         }
 
-        var gesErg = 0;
+        long gesErg = 0;
+        var blockCnt = 0;
         for (int idx = 0; idx < _blockErgList.Count; idx++)
         {
             gesErg += _blockErgList[idx] * _blockCnt[idx];
+            Console.WriteLine($"{_blockErgList[idx]}: {_blockCnt[idx]}");
+            blockCnt += _blockCnt[idx];
         }
 
         Console.WriteLine(gesErg);
+        Console.WriteLine($"Real: {blockCnt} - Calculated: {_borderX * _borderY}");
         var stopStr = "";
     }
 
+    private static void TryFindBorderCrossings(bool[,] fenceMap)
+    {
+        for (int y = 1; y < _borderY; y++)
+        {
+            if (fenceMap[0, y] && fenceMap[0, y - 1] && fenceMap[0, y + 1] && fenceMap[1, y])
+            {
+                Console.WriteLine($"Found border crossing at Y {y}");
+            }
+
+            if (fenceMap[_borderX - 1, y] && fenceMap[_borderX - 1, y - 1] && fenceMap[_borderX - 1, y + 1] &&
+                fenceMap[_borderX - 2, y])
+            {
+                Console.WriteLine($"Found border crossing at Y {y}");
+            }
+        }
+
+        for (int x = 1; x < _borderX; x++)
+        {
+            if (fenceMap[x, 0] && fenceMap[x - 1, 0] && fenceMap[x + 1, 0] && fenceMap[x, 1])
+            {
+                Console.WriteLine($"Found border crossing at X {x}");
+            }
+
+            if (fenceMap[_borderY - 1, x] && fenceMap[_borderY - 1, x - 1] && fenceMap[_borderY - 1, x + 1] &&
+                fenceMap[_borderY - 2, x])
+            {
+                Console.WriteLine($"Found border crossing at X {x}");
+            }
+        }
+    }
+
+    private static bool EleminateCrossFences(bool[,] fenceMap, int xx, int yy)
+    {
+        var retval = false;
+        for (int x = 1; x < _borderX * 2; x++)
+        {
+            for (int y = 1; y < _borderY * 2; y++)
+            {
+                if (fenceMap[x, y])
+                {
+                    if ((fenceMap[x - 1, y] && fenceMap[x + 1, y] && fenceMap[x, y - 1]) ||
+                        (fenceMap[x - 1, y] && fenceMap[x + 1, y] && fenceMap[x, y + 1])
+                        || (fenceMap[x, y - 1] && fenceMap[x, y + 1] && fenceMap[x - 1, y])
+                        || (fenceMap[x, y - 1] && fenceMap[x, y + 1] && fenceMap[x + 1, y]))
+                    {
+                        fenceMap[x, y] = false;
+                        retval = true;
+                        Console.WriteLine(
+                            $"Eleminated border crossing at {x}, {y} - Buchstabe: {_inputRaw[yy][xx]} - Explorestart: at {xx}, {yy}");
+                    }
+                }
+            }
+        }
+
+        return retval;
+    }
+
     private static int CalculateFenceLines(bool[,] fenceMap)
+    {
+        var retVal = 0;
+        //Spaltenweise prüfen
+        for (int x = 0; x < _borderX * 2 + 1; x++)
+        {
+            var onALine = false;
+            var cntCounted = false;
+            for (int y = 0; y < _borderY * 2 + 1; y++)
+            {
+                if (fenceMap[x, y] && !onALine)
+                {
+                    onALine = true;
+                    retVal++;
+                    continue;
+                }
+
+                // if (fenceMap[x, y] && onALine && !cntCounted)
+                // {
+                //     retVal++;
+                //     cntCounted = true;
+                //     continue;
+                // }
+
+                if (!fenceMap[x, y])
+                {
+                    onALine = false;
+                    //cntCounted = false;
+                }
+            }
+        }
+
+
+        //Zeilenweise prüfen
+        for (int y = 0; y < _borderY * 2 + 1; y++)
+        {
+            var onALine = false;
+            var cntCounted = false;
+            for (int x = 0; x < _borderX * 2 + 1; x++)
+            {
+                if (fenceMap[x, y] && !onALine)
+                {
+                    onALine = true;
+                    retVal++;
+                    continue;
+                }
+
+                // if (fenceMap[x, y] && onALine && !cntCounted)
+                // {
+                //     retVal++;
+                //     cntCounted = true;
+                //     continue;
+                // }
+
+                if (!fenceMap[x, y])
+                {
+                    onALine = false;
+                    //cntCounted = false;
+                }
+            }
+        }
+
+        return retVal;
+    }
+
+    private static int CalculateFenceLines_V2(bool[,] fenceMap)
     {
         var retVal = 0;
         //Spaltenweise prüfen
@@ -243,23 +434,18 @@ public static class Solver
                 if (fenceMap[x, y] && !onALine)
                 {
                     onALine = true;
-                    continue;
-                }
-                if (fenceMap[x, y] && onALine && !cntCounted)
-                {
                     retVal++;
-                    cntCounted = true;
                     continue;
                 }
 
                 if (!fenceMap[x, y])
                 {
                     onALine = false;
-                    cntCounted = false;
                 }
             }
         }
-        
+
+
         //Zeilenweise prüfen
         for (int y = 0; y < _borderX + 2; y++)
         {
@@ -270,19 +456,13 @@ public static class Solver
                 if (fenceMap[x, y] && !onALine)
                 {
                     onALine = true;
-                    continue;
-                }
-                if (fenceMap[x, y] && onALine && !cntCounted)
-                {
                     retVal++;
-                    cntCounted = true;
                     continue;
                 }
 
                 if (!fenceMap[x, y])
                 {
                     onALine = false;
-                    cntCounted = false;
                 }
             }
         }
