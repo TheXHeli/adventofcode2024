@@ -33,12 +33,12 @@ public static class Solver
             var matchesButtonB = regexB.Match(inputRaw[i * 4 + 1]);
             var matchesResult = regexResult.Match(inputRaw[i * 4 + 2]);
 
-            inputObjToAdd.ButtonAX = int.Parse(matchesButtonA.Groups[1].Value);
-            inputObjToAdd.ButtonAY = int.Parse(matchesButtonA.Groups[2].Value);
-            inputObjToAdd.ButtonBX = int.Parse(matchesButtonB.Groups[1].Value);
-            inputObjToAdd.ButtonBY = int.Parse(matchesButtonB.Groups[2].Value);
-            inputObjToAdd.ResultX = int.Parse(matchesResult.Groups[1].Value);
-            inputObjToAdd.ResultY = int.Parse(matchesResult.Groups[2].Value);
+            inputObjToAdd.ButtonAX = decimal.Parse(matchesButtonA.Groups[1].Value);
+            inputObjToAdd.ButtonAY = decimal.Parse(matchesButtonA.Groups[2].Value);
+            inputObjToAdd.ButtonBX = decimal.Parse(matchesButtonB.Groups[1].Value);
+            inputObjToAdd.ButtonBY = decimal.Parse(matchesButtonB.Groups[2].Value);
+            inputObjToAdd.ResultX = decimal.Parse(matchesResult.Groups[1].Value);
+            inputObjToAdd.ResultY = decimal.Parse(matchesResult.Groups[2].Value);
             cleanedInput.Add(inputObjToAdd);
         }
 
@@ -65,7 +65,6 @@ public static class Solver
                         Console.WriteLine($"PROBLEM");
                     }
                 }
-                
             }
         }
 
@@ -75,5 +74,53 @@ public static class Solver
 
     public static void SolveIt_2ndPart()
     {
+        var inputRaw = File.ReadAllLines(InputFile);
+        var cleanedInput = new List<InputObj>();
+        var regexA = new Regex("^Button A: X\\+([0-9]+),\\sY\\+([0-9]+)$");
+        var regexB = new Regex("^Button B: X\\+([0-9]+),\\sY\\+([0-9]+)$");
+        var regexResult = new Regex("^Prize: X=([0-9]+),\\sY=([0-9]+)$");
+        for (int i = 0; i < (inputRaw.Length / 4) + 1; i++)
+        {
+            var inputObjToAdd = new InputObj();
+            var matchesButtonA = regexA.Match(inputRaw[i * 4]);
+            var matchesButtonB = regexB.Match(inputRaw[i * 4 + 1]);
+            var matchesResult = regexResult.Match(inputRaw[i * 4 + 2]);
+
+            inputObjToAdd.ButtonAX = decimal.Parse(matchesButtonA.Groups[1].Value);
+            inputObjToAdd.ButtonAY = decimal.Parse(matchesButtonA.Groups[2].Value);
+            inputObjToAdd.ButtonBX = decimal.Parse(matchesButtonB.Groups[1].Value);
+            inputObjToAdd.ButtonBY = decimal.Parse(matchesButtonB.Groups[2].Value);
+            inputObjToAdd.ResultX = decimal.Parse(matchesResult.Groups[1].Value) + 10000000000000;
+            inputObjToAdd.ResultY = decimal.Parse(matchesResult.Groups[2].Value) + 10000000000000;
+            cleanedInput.Add(inputObjToAdd);
+        }
+
+        //33686 zu hoch
+        //Richtig 30413
+        decimal gesCosts = 0;
+        foreach (var tmpEntry in cleanedInput)
+        {
+            var pressesB = ((tmpEntry.ResultX * tmpEntry.ButtonAY) - (tmpEntry.ResultY * tmpEntry.ButtonAX)) /
+                           ((tmpEntry.ButtonBX * tmpEntry.ButtonAY) - (tmpEntry.ButtonBY * tmpEntry.ButtonAX));
+            var pressesA = (tmpEntry.ResultX - pressesB * tmpEntry.ButtonBX) / (tmpEntry.ButtonAX);
+
+            if ((pressesA > 0) && (pressesB > 0))
+            {
+                if ((Math.Ceiling(pressesA) == pressesA) && (Math.Ceiling(pressesB) == pressesB))
+                {
+                    var costs = pressesA * 3 + pressesB;
+                    gesCosts += costs;
+                    //Console.WriteLine(costs);
+                    var controlX = tmpEntry.ButtonAX * pressesA + tmpEntry.ButtonBX * pressesB;
+                    var controlY = tmpEntry.ButtonAY * pressesA + tmpEntry.ButtonBY * pressesB;
+                    if ((controlX != tmpEntry.ResultX) || (controlY != tmpEntry.ResultY))
+                    {
+                        Console.WriteLine($"PROBLEM");
+                    }
+                }
+            }
+        }
+
+        Console.WriteLine(gesCosts);
     }
 }
