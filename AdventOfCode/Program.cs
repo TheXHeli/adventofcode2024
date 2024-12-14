@@ -2,5 +2,5 @@
 
 using AdventOfCode.Day14;
 
-Solver.SolveIt_1stPart();
-//Solver.SolveIt_2ndPart();
+//Solver.SolveIt_1stPart();
+Solver.SolveIt_2ndPart();
