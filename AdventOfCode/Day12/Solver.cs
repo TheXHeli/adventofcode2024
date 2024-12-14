@@ -10,7 +10,7 @@ namespace AdventOfCode.Day12;
 //Ergebnis aus Py-Lösung: 946084 Unterschied: 131
 public static class Solver
 {
-    const string InputFile = "inputs/day12_bsp.txt";
+    const string InputFile = "inputs/day12_1.txt";
     private static int _borderX;
     private static int _borderY;
     private static string[] _inputRaw;
@@ -369,21 +369,21 @@ public static class Solver
                 if (fenceMap[x, y] && !onALine)
                 {
                     onALine = true;
-                    retVal++;
+                    //retVal++;
                     continue;
                 }
 
-                // if (fenceMap[x, y] && onALine && !cntCounted)
-                // {
-                //     retVal++;
-                //     cntCounted = true;
-                //     continue;
-                // }
+                if (fenceMap[x, y] && onALine && !cntCounted)
+                {
+                    retVal++;
+                    cntCounted = true;
+                    continue;
+                }
 
                 if (!fenceMap[x, y])
                 {
                     onALine = false;
-                    //cntCounted = false;
+                    cntCounted = false;
                 }
             }
         }
@@ -399,21 +399,21 @@ public static class Solver
                 if (fenceMap[x, y] && !onALine)
                 {
                     onALine = true;
-                    retVal++;
+                    //retVal++;
                     continue;
                 }
 
-                // if (fenceMap[x, y] && onALine && !cntCounted)
-                // {
-                //     retVal++;
-                //     cntCounted = true;
-                //     continue;
-                // }
+                if (fenceMap[x, y] && onALine && !cntCounted)
+                {
+                    retVal++;
+                    cntCounted = true;
+                    continue;
+                }
 
                 if (!fenceMap[x, y])
                 {
                     onALine = false;
-                    //cntCounted = false;
+                    cntCounted = false;
                 }
             }
         }

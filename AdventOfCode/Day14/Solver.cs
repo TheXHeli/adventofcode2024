@@ -95,11 +95,43 @@ public static class Solver
         Console.WriteLine(CleanedInput.Count);
 
         var result = new List<int> { 0, 0, 0, 0 };
-        var newRobotMap = CalculateRobotMap(100);
-        PlotRobotMap(newRobotMap);
+
+        var maxTries = 50000;
+        for (int i = 0; i < 50000; i++)
+        {
+            if (i % 1000 == 0)
+            {
+                Console.WriteLine($"{Math.Floor(((decimal)i / 50000) * 100)}%");
+            }
+            var newRobotMap = CalculateRobotMap(i);
+            var maxFlaecheSize = FindGroessteFlaeche(newRobotMap);
+            if (maxFlaecheSize >= 50)
+            {
+                PlotRobotMap(newRobotMap);    
+            }
+        }
+
 
         var gesRsult = result[0] * result[1] * result[2] * result[3];
         Console.WriteLine(gesRsult);
+    }
+
+    private static int FindGroessteFlaeche(int[,] robotMap)
+    {
+        bool[,] dawarichschonMap = new bool[RoomWidth, RoomHeight];
+        int flaecheSize = 0;
+        int maxFlaecheSize = 0;
+        for (int y = 0; y < robotMap.GetLength(1); y++)
+        {
+            for (int x = 0; x < robotMap.GetLength(0); x++)
+            {
+                flaecheSize = 0;
+                CalcFlaecheAtSpecificPoint(x, y, robotMap, dawarichschonMap, ref flaecheSize);
+                if (flaecheSize > maxFlaecheSize) maxFlaecheSize = flaecheSize;
+            }
+        }
+
+        return maxFlaecheSize;
     }
 
     private static void PlotRobotMap(int[,] robotMap)
@@ -152,8 +184,8 @@ public static class Solver
         var middleY = RoomHeight / 2;
         foreach (var tmpEntry in CleanedInput)
         {
-            var finalX = (100 * tmpEntry.dX + tmpEntry.StartX) % RoomWidth;
-            var finalY = (100 * tmpEntry.dY + tmpEntry.StartY) % RoomHeight;
+            var finalX = (blinks * tmpEntry.dX + tmpEntry.StartX) % RoomWidth;
+            var finalY = (blinks * tmpEntry.dY + tmpEntry.StartY) % RoomHeight;
             if (finalX < 0) finalX += RoomWidth;
             if (finalY < 0) finalY += RoomHeight;
             if ((finalX != middleX) && (finalY != middleY))
@@ -163,5 +195,23 @@ public static class Solver
         }
 
         return returnMap;
+    }
+
+    private static int CalcFlaecheAtSpecificPoint(int x, int y, int[,] robotMap, bool[,] dawarichschonMap,
+        ref int flaecheSize)
+    {
+        if (x < 0 || x >= RoomWidth || y < 0 || y >= RoomHeight) return 0;
+        if (robotMap[x, y] == 0) return 0;
+        if (dawarichschonMap[x, y]) return 0;
+        //Block behandeln
+        dawarichschonMap[x, y] = true;
+        flaecheSize++;
+        //Neue Positionen finden
+        CalcFlaecheAtSpecificPoint(x + 1, y, robotMap, dawarichschonMap, ref flaecheSize);
+        CalcFlaecheAtSpecificPoint(x - 1, y, robotMap, dawarichschonMap, ref flaecheSize);
+        CalcFlaecheAtSpecificPoint(x, y - 1, robotMap, dawarichschonMap, ref flaecheSize);
+        CalcFlaecheAtSpecificPoint(x, y + 1, robotMap, dawarichschonMap, ref flaecheSize);
+        //}
+        return 0;
     }
 }
