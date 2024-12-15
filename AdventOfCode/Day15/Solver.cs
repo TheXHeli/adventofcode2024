@@ -6,8 +6,8 @@ namespace AdventOfCode.Day15;
 
 record DirDef
 {
-    public decimal dX { get; set; }
-    public decimal dY { get; set; }
+    public int dX { get; set; }
+    public int dY { get; set; }
 }
 
 public static class Solver
@@ -43,6 +43,7 @@ public static class Solver
                 {
                     _robStartX = x - 1;
                     _robStartY = y - 1;
+                    _warehouseMap[x - 1, y - 1] = '.';
                 }
                 else
                 {
@@ -88,7 +89,79 @@ public static class Solver
             }
         }
 
+        Solve_1();
         Console.WriteLine("Day 15 - Puzzle 15");
+    }
+
+    private static void Solve_1()
+    {
+        var curPosX = _robStartX;
+        var curPosY = _robStartY;
+        for (int i = 0; i < _roboterMoves.Count; i++)
+        {
+            var curMoveInstruction = _roboterMoves[i];
+            var newPosX = curPosX + curMoveInstruction.dX;
+            var newPosY = curPosY + curMoveInstruction.dY;
+            if ((newPosX >= 0) && (newPosX < _borderX) && (newPosY >= 0) && (newPosY < _borderY))
+            {
+                if (_warehouseMap[newPosX, newPosY] == 'O')
+                {
+                    //nach aktuellem Dir Statement solange weiter in die Richtung gehen, bis kein O mehr kommt
+                    //dann erstes neue Roboterpos setzen und O von der neuen Roboteros nach vorne verschieben
+                    //Wird vorher der Rand erreicht, dann bleibt roboter einfach stehen
+                    var verschiebenGeklappt = KistenVerschieben(newPosX, newPosY, curMoveInstruction);
+                    if (verschiebenGeklappt)
+                    {
+                        _warehouseMap[curPosX, curPosY] = '.';
+                        curPosX = newPosX;
+                        curPosY = newPosY;
+                        _warehouseMap[curPosX, curPosY] = '.'; //Unter dem Roboter ist nichts
+                    }
+                }
+                else if (_warehouseMap[newPosX, newPosY] == '#')
+                {
+                    //Roboter bleibt stehen, nix machen
+                }
+                else
+                {
+                    curPosX = newPosX;
+                    curPosY = newPosY;
+                }
+            }
+
+            Console.WriteLine($"-------- Map nach Schritt: {i} --------");
+            PlotWarehouseMap(curPosX, curPosY);
+        }
+    }
+
+    private static bool KistenVerschieben(int kistenStartX, int kistenStartY, DirDef curMoveInstruction)
+    {
+        var curPosX = kistenStartX;
+        var curPosY = kistenStartY;
+        while (_warehouseMap[curPosX, curPosY] == 'O')
+        {
+            curPosX += curMoveInstruction.dX;
+            curPosY += curMoveInstruction.dY;
+            if ((curPosX >= 0) && (curPosX < _borderX) && (curPosY >= 0) && (curPosY < _borderY))
+            {
+                if (_warehouseMap[curPosX, curPosY] == '.')
+                {
+                    _warehouseMap[curPosX, curPosY] = 'O';
+                    return true;
+                }
+
+                if (_warehouseMap[curPosX, curPosY] == '#')
+                {
+                    return false;
+                }
+            }
+            else //ausserhalb der Map, keine Verschiebung notwendig, da vorher keine Lücke gefunden wurde, wo noch ne Kiste reingepasst hätte
+            {
+                return false;
+            }
+        }
+
+        return false;
     }
 
     private static void PlotWarehouseMap(int robStartX, int robStartY)
