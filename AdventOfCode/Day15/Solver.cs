@@ -12,7 +12,7 @@ record DirDef
 
 public static class Solver
 {
-    const string InputFile = "inputs/day15_bsp.txt";
+    const string InputFile = "inputs/day15_1.txt";
     private static int _borderX;
     private static int _borderY;
     private static string[] _inputRaw;
@@ -90,7 +90,27 @@ public static class Solver
         }
 
         Solve_1();
+
+        CalcGPSErgebnis();
         Console.WriteLine("Day 15 - Puzzle 15");
+    }
+
+    private static void CalcGPSErgebnis()
+    {
+        long gpsResult = 0;
+        for (int y = 0; y < _warehouseMap.GetLength(1); y++)
+        {
+            for (int x = 0; x < _warehouseMap.GetLength(0); x++)
+            {
+                if (_warehouseMap[x, y] == 'O')
+                {
+                    var newVal = 100 * (y + 1) + x + 1;
+                    gpsResult += newVal;
+                }
+            }
+        }
+
+        Console.WriteLine(gpsResult);
     }
 
     private static void Solve_1()
