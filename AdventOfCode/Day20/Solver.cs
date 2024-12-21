@@ -6,7 +6,7 @@ namespace AdventOfCode.Day20;
 
 public static class Solver
 {
-    const string InputFile = "inputs/day20_bsp.txt";
+    const string InputFile = "inputs/day20_1.txt";
     private static int _borderX;
     private static int _borderY;
     private static string[] _inputRaw;
@@ -296,12 +296,12 @@ public static class Solver
     {
         var listeGespart = new List<int>();
         _globCnt = 0;
-        for (int pathPos = 0; pathPos < 1; pathPos++)
+        for (int pathPos = 0; pathPos < finalBreadCrump.Count; pathPos++)
         {
             //curY * _borderX + curX
             var curX = finalBreadCrump[pathPos] % _borderX;
             var curY = (finalBreadCrump[pathPos] - curX) / _borderX;
-            ScanSystematic(4, 5);
+            ScanSystematic(curX, curY, pathPos);
             Console.WriteLine(pathPos);
         }
 
@@ -309,10 +309,10 @@ public static class Solver
         Console.WriteLine("Erg = " + _globCnt);
     }
 
-    private static void ScanSystematic(int curX, int curY)
+    private static void ScanSystematic(int curX, int curY, int startPosInBreadcrump)
     {
-        var brCrp = new List<int>();
-        var umkreis = 3;
+        //var brCrp = new List<int>();
+        var umkreis = 20;
         for (int y = curY - umkreis; y <= curY + umkreis; y++)
         {
             var umkreisRedX = Math.Abs(umkreis - Math.Abs(curY - (y + umkreis)));
@@ -320,12 +320,31 @@ public static class Solver
             {
                 if ((x >= 0) && (y >= 0) && (x < _borderX) && (y < _borderY))
                 {
-                    brCrp.Add(y * _borderX + x);
+                    //-------
+                    //brCrp.Add(y * _borderX + x);
+                    var schritteBisher = Math.Abs(x - curX) + Math.Abs(y - curY);
+                    var breadCrumCodedPos = y * _borderX + x;
+                    if (_finalBreadCrump.Contains(breadCrumCodedPos))
+                    {
+                        var posImPfadNachAbkuerz = _finalBreadCrump.IndexOf(breadCrumCodedPos);
+                        if (posImPfadNachAbkuerz > startPosInBreadcrump)
+                        {
+                            var laengeGelaufen = startPosInBreadcrump + 1 + schritteBisher +
+                                                 (_finalBreadCrump.Count - posImPfadNachAbkuerz - 1);
+                            var gespart = _finalBreadCrump.Count - laengeGelaufen;
+                            if (gespart >= 100)
+                            {
+                                _globCnt++;
+                                //_tmpFoundBreadCrump.Add(breadCrumCodedPos);
+                            }
+                        }
+                    }
+                    //----------
                 }
             }
         }
 
-        PlotWarehouseMap(curX, curY, brCrp);
+        //PlotWarehouseMap(curX, curY, brCrp);
     }
 
 
