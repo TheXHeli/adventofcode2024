@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace AdventOfCode.Year_2025.Day2;
 
 public static class Solver
@@ -6,6 +8,9 @@ public static class Solver
 
     public static void SolveIt_1stPart()
     {
+        var stopW = new Stopwatch();
+        stopW.Start();
+
         var inputRaw = File.ReadAllLines(InputFile);
         var startValue = 50m;
         var gesCnt = 0l;
@@ -21,6 +26,9 @@ public static class Solver
                 gesCnt += EvaluateIfInvalidId(i);
             }
         }
+
+        stopW.Stop();
+        Console.WriteLine(stopW.Elapsed);
 
         //1227775554, 38158151648
         Console.WriteLine("Erg: " + gesCnt);
@@ -40,6 +48,9 @@ public static class Solver
 
     public static void SolveIt_2ndPart()
     {
+        var stopW = new Stopwatch();
+        stopW.Start();
+
         var inputRaw = File.ReadAllLines(InputFile);
         var startValue = 50m;
         var gesCnt = 0l;
@@ -55,6 +66,8 @@ public static class Solver
                 gesCnt += EvaluateIfInvalidIdV2(i);
             }
         }
+        stopW.Stop();
+        Console.WriteLine(stopW.Elapsed);
 
         //4174379265, ??
         Console.WriteLine("Erg: " + gesCnt);
