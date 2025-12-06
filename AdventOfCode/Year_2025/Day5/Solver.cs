@@ -64,7 +64,7 @@ public static class Solver
     {
         var stopW = new Stopwatch();
         stopW.Start();
-        var gesCnt = 0;
+        var gesCnt = 0l;
 
         _aktRanges = new List<CusRange>();
         _inputRaw = File.ReadAllLines(InputFile);
@@ -85,9 +85,74 @@ public static class Solver
 
             curPos++;
         } while (!abbr);
-        
+
+        ConsolidateRanges();
+        foreach (var rangeItem in _aktRanges)
+        {
+            gesCnt += rangeItem.Max - rangeItem.Min + 1;
+        }
+
         stopW.Stop();
         Console.WriteLine(stopW.Elapsed);
         Console.WriteLine("Erg: " + gesCnt);
+    }
+
+    private static void ConsolidateRanges()
+    {
+        var testCnt = 0;
+        var found = false;
+        var abbr = false;
+        do
+        {
+            var newRanges = new List<CusRange>();
+            var usedRanges = new bool[_aktRanges.Count];
+            for (var idx = 0; idx < _aktRanges.Count; idx++)
+            {
+                found = false;
+                var curRange = _aktRanges[idx];
+                for (int inner = idx + 1; inner < _aktRanges.Count; inner++)
+                {
+                    if (!usedRanges[idx] && !usedRanges[inner])
+                    {
+                        var mergedRange = TryToMergeRanges(curRange, _aktRanges[inner]);
+                        if (mergedRange != null)
+                        {
+                            usedRanges[idx] = true;
+                            usedRanges[inner] = true;
+                            newRanges.Add(mergedRange);
+                            found = true;
+                            break;
+                            Console.WriteLine("merged: " + idx + "-" + inner);
+                        }
+                    }
+                }
+
+                if ((!found) && (!usedRanges[idx]))
+                {
+                    newRanges.Add(_aktRanges[idx]);
+                }
+            }
+
+            if (_aktRanges.Count == newRanges.Count) abbr = true;
+            _aktRanges = newRanges;
+            testCnt++;
+        } while (!abbr);
+
+        var stopStr = "";
+    }
+
+    private static CusRange? TryToMergeRanges(CusRange range1, CusRange range2)
+    {
+        if ((range2.Min <= range1.Max) && (range2.Min >= range1.Min))
+        {
+            return range1 with { Max = Math.Max(range1.Max, range2.Max) };
+        }
+
+        if ((range1.Min <= range2.Max) && (range1.Min >= range2.Min))
+        {
+            return range2 with { Max = Math.Max(range1.Max, range2.Max) };
+        }
+
+        return null;
     }
 }
