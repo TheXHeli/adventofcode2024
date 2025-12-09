@@ -13,7 +13,7 @@ public static class Solver
     private static List<Point> _points;
     private static List<List<int>> _circuits;
     private static List<PointIdxWithDistance> _topNearPoints;
-    private const int TopCountToSort = 1000;
+    private const int TopCountToSort = 10000;
     private const int CircuitLineCount = 1000;
 
     public static void SolveIt_1stPart()
@@ -58,12 +58,6 @@ public static class Solver
             gesCnt *= laengen[^i];
         }
 
-        // 2,13,8,17,18
-        // 0,7,19,14
-        // 9,12
-        // 11,16
-        //To Low: 11856
-        //To Low: 18850
         stopW.Stop();
         Console.WriteLine(stopW.Elapsed);
         Console.WriteLine("Erg: " + gesCnt);
@@ -75,7 +69,7 @@ public static class Solver
         {
             if (_circuits[i].Contains(idxP0) && _circuits[i].Contains(idxP1))
             {
-                Console.WriteLine("Ignore Me!");
+                //Console.WriteLine("Ignore Me!");
                 return 0;
             }
 
@@ -145,70 +139,6 @@ public static class Solver
         return _topNearPoints[checkLimit - 1].SqDistance;
     }
 
-
-    private static void AddToCircuitMembershipOrCreateNewOne(int outIdx, int innerIdx)
-    {
-        for (var i = 0; i < _circuits.Count; i++)
-        {
-            if (AddPointIfConnectedToTailOrHead(outIdx, innerIdx, i)) return;
-            if (AddPointIfConnectedToTailOrHead(innerIdx, outIdx, i)) return;
-            if (_circuits[i].Contains(outIdx))
-            {
-                _circuits.Add([innerIdx]);
-                return;
-            }
-
-            if (_circuits[i].Contains(innerIdx))
-            {
-                _circuits.Add([outIdx]);
-                return;
-            }
-        }
-
-        _circuits.Add([outIdx, innerIdx]);
-    }
-
-    private static bool AddPointIfConnectedToTailOrHead(int point1Idx, int point2Idx, int circuitNumber)
-    {
-        if (_circuits[circuitNumber][0] == point1Idx)
-        {
-            _circuits[circuitNumber].Insert(0, point2Idx);
-            return true;
-        }
-
-        if (_circuits[circuitNumber].Count >= 2)
-        {
-            if (_circuits[circuitNumber][_circuits[circuitNumber].Count - 1] == point1Idx)
-            {
-                _circuits[circuitNumber].Add(point2Idx);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static int GetCircuitMembership(int outIdx, int innerIdx)
-    {
-        for (int i = 0; i < _circuits.Count; i++)
-        {
-            if (_circuits[i].Contains(outIdx) && _circuits[i].Contains(innerIdx))
-            {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-    private static double GetDistance(Point point0, Point point1)
-    {
-        var squareDistance = (point0.X - point1.X) * (point0.X - point1.X);
-        squareDistance += (point0.Y - point1.Y) * (point0.Y - point1.Y);
-        squareDistance += (point0.Z - point1.Z) * (point0.Z - point1.Z);
-        return Math.Sqrt(squareDistance);
-    }
-
     private static long GetSqDistance(Point point0, Point point1)
     {
         var squareDistance = (point0.X - point1.X) * (point0.X - point1.X);
@@ -222,6 +152,56 @@ public static class Solver
         var stopW = new Stopwatch();
         stopW.Start();
         var gesCnt = 0l;
+        _inputRaw = File.ReadAllLines(InputFile);
+        _points = new List<Point>();
+        foreach (var inputItem in _inputRaw)
+        {
+            var splitted = inputItem.Split(",");
+            _points.Add(new Point(long.Parse(splitted[0]), long.Parse(splitted[1]), long.Parse(splitted[2])));
+        }
+
+        _topNearPoints = [];
+        var longestDistanceInTopRange = long.MaxValue;
+        for (int outIdx = 0; outIdx < _points.Count; outIdx++)
+        {
+            for (int innerIdx = outIdx + 1; innerIdx < _points.Count; innerIdx++)
+            {
+                var sqDistance = GetSqDistance(_points[outIdx], _points[innerIdx]);
+                if (sqDistance < longestDistanceInTopRange)
+                {
+                    longestDistanceInTopRange = InsertSortedInPointsWithDistanceList(sqDistance, outIdx, innerIdx);
+                }
+            }
+        }
+
+        _circuits = [];
+        var pos = 0;
+        do
+        {
+            AddToCircuitMembershipOrCreate(_topNearPoints[pos].IdxP0, _topNearPoints[pos].IdxP1);
+            if (_circuits[0].Count == _points.Count)
+            {
+                Console.WriteLine("Pos: " + pos + " - CircuitCnt: " + _circuits[0].Count + " - " +
+                                  _points[_topNearPoints[pos].IdxP0] + " - " +
+                                  _points[_topNearPoints[pos].IdxP1]);
+                Console.WriteLine(_points[_topNearPoints[pos].IdxP0].X);
+                Console.WriteLine(_points[_topNearPoints[pos].IdxP1].X);
+                Console.WriteLine(
+                    "Result" + _points[_topNearPoints[pos].IdxP0].X * _points[_topNearPoints[pos].IdxP1].X);
+            }
+
+            pos++;
+        } while (_circuits[0].Count != _points.Count && _circuits.Count > 0);
+
+        //25272
+        var laengen = _circuits.Select(a => a.Count).ToList();
+        laengen.Sort();
+        /*gesCnt = laengen[^1];
+        for (int i = 2; i < 4; i++)
+        {
+            gesCnt *= laengen[^i];
+        }*/
+        Console.WriteLine("216,146,977 and 117,168,530");
 
         stopW.Stop();
         Console.WriteLine(stopW.Elapsed);
