@@ -1,6 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using AdventOfCode.Year_2025.Day9;
+using AdventOfCode.Year_2025.Day7;
 
 Solver.SolveIt_1stPart();
 //Solver.SolveIt_2ndPart();
